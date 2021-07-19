@@ -43,7 +43,7 @@
     <el-dialog
       title="流程图"
       :visible.sync="dialogVisible"
-      width="1024"
+      width="60%"
       :before-close="handleClose">
       <span>
         <img :src="processUrl+processId"/>

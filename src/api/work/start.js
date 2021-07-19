@@ -39,6 +39,30 @@ export const getTodoList = (current, size, params) => {
   })
 }
 
+export const getSendList = (current, size, params) => {
+  return request({
+    url: '/api/blade-flow/work/send-list',
+    method: 'get',
+    params: {
+      ...params,
+      current,
+      size
+    }
+  })
+}
+
+export const getDoneList = (current, size, params) => {
+  return request({
+    url: '/api/blade-flow/work/done-list',
+    method: 'get',
+    params: {
+      ...params,
+      current,
+      size
+    }
+  })
+}
+
 export const getTodoHistory = (params) => {
   return request({
     url: '/api/blade-flow/process/history-flow-list',

@@ -15,6 +15,9 @@
                 slot="processDefinitionVersion">
         <el-tag>v{{row.processDefinitionVersion}}</el-tag>
       </template>
+      <template slot-scope="{row}" slot="category">
+        <el-tag>{{row.category == 'flow_1' ? '请假流程' : '报销流程'}}</el-tag>
+      </template>
       <template slot="menu" slot-scope="scope">
         <el-button :size="scope.size" :type="scope.type" @click.stop="processFunc(scope.row)">处理</el-button>
         <el-button :size="scope.size" :type="scope.type" @click.stop="workDetail(scope.row)">详情</el-button>

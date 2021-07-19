@@ -4,68 +4,56 @@
                :table-loading="loading"
                :data="data"
                :page="page"
+               ref="crud"
                v-model="form"
-               @row-update="rowUpdate"
                @search-change="searchChange"
                @search-reset="searchReset"
-               @selection-change="selectionChange"
                @current-change="currentChange"
                @size-change="sizeChange"
+               @refresh-change="refreshChange"
                @on-load="onLoad">
+      <template slot-scope="{row}"
+                slot="processDefinitionVersion">
+        <el-tag>v{{row.processDefinitionVersion}}</el-tag>
+      </template>
+      <template slot-scope="{row}" slot="category">
+        <el-tag>{{row.category == 'flow_1' ? '请假流程' : '报销流程'}}</el-tag>
+      </template>
       <template slot="menu" slot-scope="scope">
-        <el-button :size="scope.size" :type="scope.type" @click.stop="launch(scope.row)">发起</el-button>
-        <el-button :size="scope.size" :type="scope.type" @click.native="showProcessPhoto(scope.row)">流程图</el-button>
-      </template>
-      <template slot-scope="{row}"
-                slot="tenantId">
-        <el-tag>{{row.tenantId == '' ? '通用' : row.tenantId}}</el-tag>
-      </template>
-      <template slot-scope="{row}"
-                slot="category">
-        <el-tag>{{row.categoryName}}</el-tag>
-      </template>
-      <template slot-scope="{row}"
-                slot="version">
-        <el-tag>v{{row.version}}</el-tag>
-      </template>
-      <template slot-scope="{row}"
-                slot="suspensionState">
-        <el-tag>{{row.suspensionState==1?'激活':'未激活'}}</el-tag>
+        <el-button :size="scope.size" :type="scope.type" @click.stop="workDetail(scope.row)">详情</el-button>
+        <el-button :size="scope.size" :type="scope.type" @click.stop="workTrack(scope.row)">跟踪</el-button>
       </template>
     </avue-crud>
+
     <el-dialog
       title="流程图"
       :visible.sync="dialogVisible"
-      width="70%"
+      width="60%"
       :before-close="handleClose">
       <span>
-        <img :src="processUrl+processId"/>
+        <img :src="imageUrl+processInstanceId"/>
       </span>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">关闭</el-button>
       </span>
     </el-dialog>
+
   </basic-container>
 </template>
 
+<style lang="sass">
+
+</style>
+
 <script>
-  import {getClaimList, update, iframeUrl } from "@/api/work/start";
+  import {getDoneList,iframeDiagramUrl} from "@/api/work/start";
 
   export default {
+    name: '',
     data() {
       return {
-        form: {},
-        query: {},
         loading: true,
-        page: {
-          pageSize: 10,
-          currentPage: 1,
-          total: 0
-        },
-        selectionList: [],
         option: {
-          height: 'auto',
-          calcHeight: 210,
           searchShow: true,
           searchMenuSpan: 6,
           tip: false,
@@ -74,7 +62,7 @@
           addBtn: false,
           delBtn: false,
           editBtn: false,
-          selection: true,
+          selection: false,
           column: [
             {
               label: "流程分类",
@@ -87,6 +75,8 @@
               slot: true,
               prop: "category",
               search: true,
+              hide: true,
+              //showColumn:false,
               rules: [{
                 required: true,
                 message: "请选择流程分类",
@@ -95,7 +85,7 @@
             },
             {
               label: "流程名称",
-              prop: "name",
+              prop: "categoryName",
               type: "input",
               search: true,
               rules: [{
@@ -108,56 +98,35 @@
               label: "当前步骤",
               prop: "taskName",
               span: 24,
+              slot: true,
             },
-
             {
               label: "流程版本",
-              prop: "version",
+              prop: "processDefinitionVersion",
               span: 24,
               slot: true,
-              prop: "version",
             },
             {
               label: "申请时间",
-              prop: "deploymentTime",
+              prop: "createTime",
               span: 24,
             }
           ]
         },
         data: [],
-        radioActive: 1,
+        form: {},
+        query: {},
+        page: {
+          pageSize: 10,
+          currentPage: 1,
+          total: 0
+        },
         dialogVisible: false,
-        processUrl: iframeUrl,
-        processId: ''
-      };
-    },
-    computed: {
-      ids() {
-        let ids = [];
-        this.selectionList.forEach(ele => {
-          ids.push(ele.id);
-        });
-        return ids.join(",");
+        imageUrl: iframeDiagramUrl,
+        processInstanceId: ''
       }
     },
     methods: {
-      rowUpdate(row, index, done, loading) {
-        update(row).then(() => {
-          done();
-          this.onLoad(this.page);
-          this.$message({
-            type: "success",
-            message: "操作成功!"
-          });
-        }, error => {
-          window.console.log(error);
-          loading();
-        });
-      },
-      searchReset() {
-        this.query = {};
-        this.onLoad(this.page);
-      },
       searchChange(params, done) {
         params.category = 'flow_'+params.category;
         this.query = params;
@@ -165,8 +134,9 @@
         this.onLoad(this.page, params);
         done();
       },
-      selectionChange(list) {
-        this.selectionList = list;
+      searchReset() {
+        this.query = {};
+        this.onLoad(this.page);
       },
       currentChange(currentPage) {
         this.page.currentPage = currentPage;
@@ -174,31 +144,36 @@
       sizeChange(pageSize) {
         this.page.pageSize = pageSize;
       },
+      refreshChange() {
+        this.onLoad(this.page, this.query);
+      },
       onLoad(page, params = {}) {
         this.loading = true;
-        params.mode = this.radioActive;
-        getClaimList(page.currentPage, page.pageSize, Object.assign(params, this.query)).then(res => {
-          const data = res.data.data;
-          this.page.total = data.total;
-          this.data = data.records;
-          this.loading = false;
-        });
+        getDoneList(page.currentPage, page.pageSize, Object.assign(params, this.query)).then(res => {
+          if(res.status == 200) {
+            const data = res.data.data;
+            this.page.total = data.total;
+            this.data = data.records;
+            this.loading = false;
+          }
+        })
       },
-      //发起流程
-      launch(data) {
-        this.$router.push({path: '/work/process/leave/form/'+data.id})
+      //详情
+      workDetail(data) {
+        this.$router.push({path: `/work/process/leave/detail/${data.processInstanceId}/${data.businessId}`});
+      },
+      //跟踪
+      workTrack(data) {
+        this.processInstanceId = data.processInstanceId;
+        this.dialogVisible = true;
       },
       handleClose() {
         this.dialogVisible = false;
       },
-      //显示流程图
-      showProcessPhoto(data) {
-        this.dialogVisible = true;
-        this.processId = data.id;
-      }
-    }
-  };
-</script>
+    },
+    mounted() {
 
-<style>
-</style>
+    }
+  }
+
+</script>
