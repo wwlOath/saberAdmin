@@ -73,7 +73,7 @@
 </template>
 
 <script>
-  import {getManagerList, managerSubmit, managerRemove, iframeDiagramUrl } from "@/api/flow/model";
+  import {getManagerList, managerSubmit, managerRemove, iframeDiagramUrl } from "@/api/flow/index";
 
   const statusList = [
     {

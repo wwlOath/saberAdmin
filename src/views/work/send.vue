@@ -49,7 +49,7 @@
 </style>
 
 <script>
-  import {getSendList,iframeDiagramUrl} from "@/api/work/start";
+  import {getSendList,iframeDiagramUrl} from "@/api/work/index";
 
   export default {
     name: '',

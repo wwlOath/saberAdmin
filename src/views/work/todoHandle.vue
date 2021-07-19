@@ -74,7 +74,7 @@
 </style>
 
 <script>
-  import {getTodoDetail, iframeDiagramUrl, getTodoHistory, todoSumit } from "@/api/work/start";
+  import {getTodoDetail, iframeDiagramUrl, getTodoHistory, todoSumit } from "@/api/work/index";
   import { mapGetters } from "vuex";
 
   export default {

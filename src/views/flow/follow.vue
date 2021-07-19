@@ -41,7 +41,7 @@
 </template>
 
 <script>
-  import {getFollowList, followRemove } from "@/api/flow/model";
+  import {getFollowList, followRemove } from "@/api/flow/index";
 
   export default {
     data() {

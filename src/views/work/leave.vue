@@ -13,7 +13,7 @@
 </style>
 
 <script>
-  import {leaveSubmit} from "@/api/work/start";
+  import {leaveSubmit} from "@/api/work/index";
 
   export default {
     name: '',

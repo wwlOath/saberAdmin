@@ -56,7 +56,7 @@
 </template>
 
 <script>
-  import {getList, update, iframeUrl } from "@/api/work/start";
+  import {getList, update, iframeUrl } from "@/api/work/index";
 
   export default {
     data() {

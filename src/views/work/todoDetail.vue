@@ -70,7 +70,7 @@
 </style>
 
 <script>
-  import {getTodoDetail, iframeDiagramUrl, getTodoHistory } from "@/api/work/start";
+  import {getTodoDetail, iframeDiagramUrl, getTodoHistory } from "@/api/work/index";
   import { mapGetters } from "vuex";
 
   export default {

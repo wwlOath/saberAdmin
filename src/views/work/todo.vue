@@ -46,7 +46,7 @@
 </style>
 
 <script>
-  import {getTodoList,iframeDiagramUrl} from "@/api/work/start";
+  import {getTodoList,iframeDiagramUrl} from "@/api/work/index";
 
   export default {
     name: '',

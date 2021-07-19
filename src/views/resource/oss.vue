@@ -325,16 +325,16 @@
           cancelButtonText: "取消",
           type: "warning"
         })
-        .then(() => {
-          return modelRemove(data.id);
-        })
-        .then(() => {
-          this.onLoad(this.page);
-          this.$message({
-            type: "success",
-            message: "操作成功!"
-          });
-        });
+            .then(() => {
+              return modelRemove(data.id);
+            })
+            .then(() => {
+              this.onLoad(this.page);
+              this.$message({
+                type: "success",
+                message: "操作成功!"
+              });
+            });
       },
       //多选删除
       handleDelete() {
@@ -347,17 +347,17 @@
           cancelButtonText: "取消",
           type: "warning"
         })
-        .then(() => {
-          return modelRemove(this.ids);
-        })
-        .then(() => {
-          this.onLoad(this.page);
-          this.$message({
-            type: "success",
-            message: "操作成功!"
-          });
-          this.$refs.crud.toggleSelection();
-        });
+            .then(() => {
+              return modelRemove(this.ids);
+            })
+            .then(() => {
+              this.onLoad(this.page);
+              this.$message({
+                type: "success",
+                message: "操作成功!"
+              });
+              this.$refs.crud.toggleSelection();
+            });
       },
       //创建
       handleAdd(data) {

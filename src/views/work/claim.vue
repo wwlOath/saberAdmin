@@ -49,7 +49,7 @@
 </template>
 
 <script>
-  import {getClaimList, update, iframeUrl } from "@/api/work/start";
+  import {getClaimList, update, iframeUrl } from "@/api/work/index";
 
   export default {
     data() {
