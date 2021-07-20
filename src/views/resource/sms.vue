@@ -16,6 +16,8 @@
                @refresh-change="refreshChange"
                @on-load="onLoad">
       <template slot="menu" slot-scope="scope">
+        <el-button :size="scope.size" :type="scope.type" icon="el-icon-video-play" @click.stop="debugTest(scope.row)">调试</el-button>
+        <el-button :size="scope.size" :type="scope.type" icon="el-icon-circle-check" @click.stop="runTest(scope.row)">启用</el-button>
       </template>
       <template slot="menuLeft" slot-scope="scope">
         <el-button type="danger"
@@ -34,17 +36,28 @@
         <el-tag>{{row.statusName}}</el-tag>
       </template>
     </avue-crud>
+
+    <el-dialog
+      title="手机短信发送调试"
+      width="30%"
+      :visible.sync="visible"
+      :before-close="handleClose"
+    >
+      <avue-form :option="smsOption" ref="smsForm" v-model="smsForm" @submit="smsSubmitSave">
+
+      </avue-form>
+    </el-dialog>
   </basic-container>
 </template>
 
 <script>
-  import {getOssList, ossSubmit, ossRemove } from "@/api/resource/index";
+  import {getSmsList, smsSubmit, smsRemove, smsSend, smsEnabled } from "@/api/resource/index";
 
   export default {
     data() {
       return {
         form: {
-          categoryName: 'minio'
+          categoryName: 'yunpian'
         },
         query: {},
         loading: true,
@@ -73,7 +86,7 @@
               prop: "category",
               search: true,
               type: "select",
-              dicUrl: "/api/blade-system/dict/dictionary?code=oss",
+              dicUrl: "/api/blade-system/dict/dictionary?code=sms",
               props: {
                 label: "dictValue",
                 value: "dictKey",
@@ -89,7 +102,7 @@
               prop: "categoryName",
               slot: true,
               type: "radio",
-              dicUrl: "/api/blade-system/dict/dictionary?code=oss",
+              dicUrl: "/api/blade-system/dict/dictionary?code=sms",
               props: {
                 label: "dictValue",
                 value: "dictValue",
@@ -103,32 +116,23 @@
             },
             {
               label: "资源编号",
-              prop: "ossCode",
+              prop: "smsCode",
               span: 24,
               type: "input",
               search: true,
               rules: [{
                 required: true,
-                message: "请输入模型标识",
+                message: "请输入资源编号",
                 trigger: "blur"
               }],
             },
             {
-              label: "资源地址",
-              prop: "endpoint",
+              label: "模板ID",
+              prop: "templateId",
+              search: true,
               rules: [{
                 required: true,
-                message: "请输入资源地址",
-                trigger: "blur"
-              }],
-              span: 24
-            },
-            {
-              label: "空间名",
-              prop: "bucketName",
-              rules: [{
-                required: true,
-                message: "请输入空间名",
+                message: "请输入模板ID",
                 trigger: "blur"
               }],
               span: 24
@@ -136,13 +140,14 @@
             {
               label: "accessKey",
               prop: "accessKey",
-              search: true,
               rules: [{
                 required: true,
                 message: "请输入accessKey",
                 trigger: "blur"
               }],
-              span: 24
+              span: 24,
+              display: false,
+              hide: true
             },
             {
               label: "secretKey",
@@ -150,6 +155,25 @@
               rules: [{
                 required: true,
                 message: "请输入secretKey",
+                trigger: "blur"
+              }],
+              span: 24,
+              display: false,
+              hide: true
+            },
+            {
+              label: "regionId",
+              prop: "regionId",
+              span: 24,
+              display: false,
+              hide: true
+            },
+            {
+              label: "短信签名",
+              prop: "signName",
+              rules: [{
+                required: true,
+                message: "请输入短信签名",
                 trigger: "blur"
               }],
               span: 24
@@ -163,20 +187,6 @@
               viewDisplay:false,
             },
             {
-              label: 'appId',
-              prop: 'appId',
-              span: 24,
-              hide: true,
-              display: false,
-            },
-            {
-              label: 'region',
-              prop: 'region',
-              span: 24,
-              hide: true,
-              display: false,
-            },
-            {
               label: '备注',
               prop: 'remark',
               span: 24,
@@ -185,19 +195,67 @@
           ]
         },
         data: [],
+        visible: false,
+        smsOption: {
+          submitText: '发送',
+          column: [
+            {
+              label: "资源编号",
+              type: "input",
+              prop: "code",
+              span: 24,
+              disabled: true
+            },
+            {
+              label: "发送手机",
+              type: "input",
+              prop: "phones",
+              span: 24,
+            },
+            {
+              label: "发送手机",
+              type: "input",
+              placeholder: "例: {'code':2333,'title':'通知标题'}",
+              prop: "params",
+              span: 24,
+            },
+          ]
+        },
+        smsForm: {
+
+        }
       }
     },
     watch: {
       'form.categoryName':{
         handler(val){
-          const appId = this.findObject(this.option.column,'appId')
-          const region = this.findObject(this.option.column,'region')
-          if(val === 'tencent'){
-            appId.display = true;
-            region.display = true;
-          }else{
-            appId.display = false;
-            region.display = false;
+          const accessKey = this.findObject(this.option.column,'accessKey')
+          const secretKey = this.findObject(this.option.column,'secretKey')
+          const regionId = this.findObject(this.option.column,'regionId')
+          if(val === 'yunpian'){
+            accessKey.display = true;
+            accessKey.label = 'apiKey';
+            secretKey.display = false;
+            secretKey.label = 'secretKey';
+            regionId.display = false;
+          }else if(val === 'qiniu'){
+            accessKey.display = true;
+            accessKey.label = 'accessKey';
+            secretKey.display = true;
+            secretKey.label = 'secretKey';
+            regionId.display = false;
+          }else if(val === 'ali'){
+            accessKey.display = true;
+            accessKey.label = 'accessKey';
+            secretKey.display = true;
+            secretKey.label = 'secretKey';
+            regionId.display = true;
+          }else if(val === 'tencent'){
+            accessKey.display = true;
+            accessKey.label = 'appId';
+            secretKey.display = true;
+            secretKey.label = 'appKey';
+            regionId.display = false;
           }
         },
         immediate: true
@@ -237,7 +295,7 @@
       },
       onLoad(page, params = {}) {
         this.loading = true;
-        getOssList(page.currentPage, page.pageSize, Object.assign(params, this.query)).then(res => {
+        getSmsList(page.currentPage, page.pageSize, Object.assign(params, this.query)).then(res => {
           const data = res.data.data;
           this.page.total = data.total;
           this.data = data.records;
@@ -245,7 +303,7 @@
         });
       },
       rowSave(row, done, loading) {
-        ossSubmit(row).then(() => {
+        smsSubmit(row).then(() => {
           done();
           this.onLoad(this.page);
           this.$message({
@@ -258,7 +316,7 @@
         });
       },
       rowUpdate(row, index, done, loading) {
-        ossSubmit(row).then(() => {
+        smsSubmit(row).then(() => {
           done();
           this.onLoad(this.page);
           this.$message({
@@ -278,7 +336,7 @@
           type: "warning"
         })
         .then(() => {
-          return ossRemove(data.id);
+          return smsRemove(data.id);
         })
         .then(() => {
           this.onLoad(this.page);
@@ -300,7 +358,7 @@
           type: "warning"
         })
         .then(() => {
-          return ossRemove(this.ids);
+          return smsRemove(this.ids);
         })
         .then(() => {
           this.onLoad(this.page);
@@ -311,6 +369,42 @@
           this.$refs.crud.toggleSelection();
         });
       },
+      handleClose() {
+        this.visible = false;
+      },
+      debugTest(data) {
+        this.smsForm.code = data.smsCode;
+        this.visible = true;
+      },
+      smsSubmitSave() {
+        smsSend(this.smsForm).then(() => {
+          this.onLoad(this.page);
+          this.$message({
+            type: "success",
+            message: "操作成功!"
+          });
+        }, error => {
+          window.console.log(error);
+        });
+      },
+      //启用
+      runTest(data) {
+        this.$confirm("是否确定启用这条配置?", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        })
+        .then(() => {
+          return smsEnabled(data.id);
+        })
+        .then(() => {
+          this.onLoad(this.page);
+          this.$message({
+            type: "success",
+            message: "操作成功!"
+          });
+        });
+      }
     }
   };
 </script>
