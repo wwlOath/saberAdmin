@@ -28,7 +28,7 @@
         </el-button>
       </template>
       <template slot-scope="{row}"
-                slot="categoryName">
+                slot="category">
         <el-tag>{{row.categoryName}}</el-tag>
       </template>
       <template slot-scope="{row}"
@@ -57,7 +57,7 @@
     data() {
       return {
         form: {
-          categoryName: 'yunpian'
+          category: '1'
         },
         query: {},
         loading: true,
@@ -75,38 +75,21 @@
           tip: false,
           border: true,
           index: true,
-          addBtn: true,
-          delBtn: true,
-          editBtn: true,
           viewBtn: true,
           selection: true,
           column: [
             {
               label: "分类",
               prop: "category",
+              slot: true,
+              type: "radio",
               search: true,
-              type: "select",
               dicUrl: "/api/blade-system/dict/dictionary?code=sms",
               props: {
                 label: "dictValue",
                 value: "dictKey",
               },
-              addDisplay: false,
-              editDisplay: false,
-              viewDisplay: false,
-              hide: true,
-              showColumn: false,
-            },
-            {
-              label: "分类",
-              prop: "categoryName",
-              slot: true,
-              type: "radio",
-              dicUrl: "/api/blade-system/dict/dictionary?code=sms",
-              props: {
-                label: "dictValue",
-                value: "dictValue",
-              },
+              dataType: "number",
               rules: [{
                 required: true,
                 message: "请选择分类",
@@ -227,30 +210,30 @@
       }
     },
     watch: {
-      'form.categoryName':{
+      'form.category':{
         handler(val){
           const accessKey = this.findObject(this.option.column,'accessKey')
           const secretKey = this.findObject(this.option.column,'secretKey')
           const regionId = this.findObject(this.option.column,'regionId')
-          if(val === 'yunpian'){
+          if(val === 1){
             accessKey.display = true;
             accessKey.label = 'apiKey';
             secretKey.display = false;
             secretKey.label = 'secretKey';
             regionId.display = false;
-          }else if(val === 'qiniu'){
+          }else if(val === 2){
             accessKey.display = true;
             accessKey.label = 'accessKey';
             secretKey.display = true;
             secretKey.label = 'secretKey';
             regionId.display = false;
-          }else if(val === 'ali'){
+          }else if(val === 3){
             accessKey.display = true;
             accessKey.label = 'accessKey';
             secretKey.display = true;
             secretKey.label = 'secretKey';
             regionId.display = true;
-          }else if(val === 'tencent'){
+          }else if(val === 4){
             accessKey.display = true;
             accessKey.label = 'appId';
             secretKey.display = true;
