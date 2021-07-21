@@ -31,7 +31,6 @@
           icon="el-icon-circle-plus-outline"
           size="small"
           @click.stop="handleAdd(scope.row,scope.index)"
-          v-if="userInfo.authority.includes('admin')"
         >新增子项
         </el-button>
       </template>
@@ -57,6 +56,8 @@
           total: 0
         },
         option: {
+          height: 'auto',
+          calcHeight: 210,
           searchShow: true,
           searchMenuSpan: 6,
           tip: false,

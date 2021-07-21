@@ -31,8 +31,8 @@
           icon="el-icon-circle-plus-outline"
           size="small"
           @click.stop="handleAdd(scope.row,scope.index)"
-          v-if="userInfo.authority.includes('admin')"
         >新增子项
+          <!--v-if="userInfo.authority.includes('admin')"-->
         </el-button>
       </template>
     </avue-crud>

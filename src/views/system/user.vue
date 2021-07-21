@@ -29,7 +29,6 @@
         <el-button type="info"
                    size="small"
                    plain
-                   v-if="userInfo.authority.includes('admin')"
                    icon="el-icon-user"
                    @click="handleGrant">角色配置
         </el-button>
@@ -43,14 +42,12 @@
         <el-button type="success"
                    size="small"
                    plain
-                   v-if="userInfo.authority.includes('admin')"
                    icon="el-icon-upload2"
                    @click="handleImport">导入
         </el-button>
         <el-button type="warning"
                    size="small"
                    plain
-                   v-if="userInfo.authority.includes('admin')"
                    icon="el-icon-download"
                    @click="handleExport">导出
         </el-button>
